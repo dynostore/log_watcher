@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dynostore-logwatcher"
+version = "0.0.1"
+authors = [
+    { name = "Dante D. Sanchez-Gallegos", email = "dantsanc@pa.uc3m.es" },
+    { name = "Gabriele Morabito", email = "gabriele.morabito@unime.it" }
+]
+description = "DynoStore log watcher client library"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = {text = "MIT"}
+dependencies = [
+    "watchdog==6.0.0",
+    "requests==2.32.5"
+]
+
+[project.scripts]
+dynostore = "logwatcher.log_watcher:main"
+
+[project.urls]
+Homepage = "https://github.com/dynostore/log_watcher"
+Issues = "https://github.com/dynostore/log_watcher/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
