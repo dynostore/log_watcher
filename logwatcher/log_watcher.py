@@ -1,4 +1,3 @@
-import time
 import heapq
 from datetime import datetime
 import os
@@ -192,10 +191,11 @@ def connect_chunk_to_datacontainer(chunk_id: str, datacontainer_id: str, up_over
     else:
         print(f"Failed to connect Chunk {chunk_id} to DataContainer {datacontainer_id}: {r.text}")
 
-def connect_client_to_metadata(client_id: str, metadata_id: str):
+def connect_client_to_metadata(client_id: str, metadata_id: str, timestamp: int):
     edge = {
         "_from": f"dynostore_clients/{client_id}",
-        "_to": f"metadata/metadata_{metadata_id}"
+        "_to": f"metadata/metadata_{metadata_id}",
+        "timestamp": timestamp
     }
     r = requests.post(f"{API_BASE_URL}/edges/lookup", json=edge)
     if r.status_code == 200:
@@ -203,10 +203,12 @@ def connect_client_to_metadata(client_id: str, metadata_id: str):
     else:
         print(f"Failed to connect Client {client_id} to Metadata {metadata_id}: {r.text}")
 
-def connect_client_to_chunk(client_id: str, chunk_id: str):
+def connect_client_to_chunk(client_id: str, chunk_id: str, timestamp: int, operation: str):
     edge = {
         "_from": f"dynostore_clients/{client_id}",
-        "_to": f"object_chunks/chunk_{chunk_id}"
+        "_to": f"object_chunks/chunk_{chunk_id}",
+        "timestamp": timestamp,
+        "operation": operation
     }
     r = requests.post(f"{API_BASE_URL}/edges/readwrite", json=edge)
     if r.status_code == 200:
@@ -235,7 +237,7 @@ def process_log_line(line: str):
         print("Malformed log line:", line)
         return
     
-    timestamp = parts[0].strip()
+    timestamp = datetime.fromisoformat(parts[0].strip())
     log_level = parts[1].strip()
     source = parts[2].strip()
     entity_id = parts[3].strip()
@@ -287,6 +289,8 @@ def process_log_line(line: str):
                     pass
                 case "EC_SPLIT":
                     print("Erasure coding split action detected.")
+                    client_counter += 1
+                    create_client(client_id=str(client_counter))
                     uploading_objects[object_id]["reconstruction_threshold"] = details.get("k", 0)
                     create_data_object(
                         object_id,
@@ -300,13 +304,12 @@ def process_log_line(line: str):
                         object_id=object_id
                     )
                     uploading_objects[object_id]["n"] = details.get("n", 0)
-
                     pass
                 case "EC_PUSH":
                     print("Erasure coding push action detected.")
                     if "chunks" not in uploading_objects[object_id]:
                         uploading_objects[object_id]["chunks"] = {}
-                    chunk_id = details.get("frag") + "_1"
+                    chunk_id = details.get("frag")# + "_1"
                     url = details.get("url", "")
                     parsed = urlparse(url)
                     uri = parsed.hostname
@@ -334,6 +337,12 @@ def process_log_line(line: str):
                         metadata_id=object_id,
                         chunk_id=object_id + "_" + chunk_id
                     )
+                    connect_client_to_chunk(
+                        client_id=f"client_{client_counter}",
+                        chunk_id=object_id + "_" + chunk_id,
+                        timestamp=timestamp.timestamp(),
+                        operation="WRITE"
+                    )
                     print(f"Created and connected chunk {chunk_id} for object {object_id} to datacontainer {data_container_id}")
                     #TODO: update read/write operation edges between client and  object chunks
                     if len(uploading_objects[object_id]["chunks"]) == uploading_objects[object_id]["n"]:
@@ -347,7 +356,7 @@ def process_log_line(line: str):
                         create_client(client_id=str(client_counter))
                     pass
                 case "PULL_METADATA":
-                    connect_client_to_metadata(client_id=f"client_{client_counter}", metadata_id=object_id)
+                    connect_client_to_metadata(client_id=f"client_{client_counter}", metadata_id=object_id, timestamp=timestamp.timestamp())
                     print("Pull metadata action detected.")
                     pass
                 case "DOWNLOAD_CHUNK":
@@ -357,7 +366,7 @@ def process_log_line(line: str):
                         case "SUCCESS":
                             chunk_number = details.get("chunk_id", None)
                             if chunk_number is not None:
-                                connect_client_to_chunk(client_id=f"client_{client_counter}", chunk_id=f"{object_id}_{chunk_number}")
+                                connect_client_to_chunk(client_id=f"client_{client_counter}", chunk_id=f"{object_id}_{chunk_number}", timestamp=timestamp.timestamp(), operation="READ")
                             pass
                     print("Download chunk action detected.")
                     pass
