@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dynostore-logwatcher"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
     { name = "Dante D. Sanchez-Gallegos", email = "dantsanc@pa.uc3m.es" },
     { name = "Gabriele Morabito", email = "gabriele.morabito@unime.it" }
