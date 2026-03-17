@@ -1,2 +1,3 @@
 dynostore_logwatcher.egg-info/*
 build/*
+logwatcher/__pycache__/*
