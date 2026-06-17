@@ -1,10 +1,11 @@
 [build-system]
-requires = ["setuptools>=64.0"]
+# 1. Add setuptools_scm here
+requires = ["setuptools>=64.0", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "dynostore-logwatcher"
-dynamic = ["version"]  # 1. Explicitly declare the version as dynamic
+dynamic = ["version"] 
 authors = [
     { name = "Dante D. Sanchez-Gallegos", email = "dantsanc@pa.uc3m.es" },
     { name = "Gabriele Morabito", email = "gabriele.morabito@unime.it" }
@@ -20,7 +21,7 @@ license = {text = "MIT"}
 dependencies = [
     "watchdog==6.0.0",
     "requests==2.32.5",
-    "python-dotenv" # Note: the PyPI package name is 'python-dotenv', not 'dotenv'
+    "python-dotenv"
 ]
 
 [project.scripts]
@@ -30,9 +31,9 @@ logwatcher = "logwatcher.log_watcher:main"
 Homepage = "https://github.com/dynostore/log_watcher"
 Issues = "https://github.com/dynostore/log_watcher/issues"
 
-[tool.setuptools.dynamic]
-# 2. Point to the actual module name where the variable lives
-version = {attr = "logwatcher.__version__"} 
-
 [tool.setuptools.packages.find]
 where = ["."]
+
+# 2. Add this configuration block for setuptools_scm
+[tool.setuptools_scm]
+# Leaving this blank enables the default behavior (reading Git tags)
