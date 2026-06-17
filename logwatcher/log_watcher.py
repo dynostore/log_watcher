@@ -247,10 +247,14 @@ def process_log_line(line: str):
     progress = parts[6].strip()
     status = parts[7].strip()
     details = {}
-    for p in parts[8].split(';'):
-        if '=' in p:
-            key, value = p.split('=')
-            details[key] = value
+    try:
+        for p in parts[8].split(';'):
+            if '=' in p:
+                key, value = p.split('=')
+                details[key] = value
+    except Exception:
+        print("Exception parsing details:", parts[8])
+        pass
     #print("uploading_objects:", uploading_objects)
     match source:
         case "dynostore.controllers.data":
