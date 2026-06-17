@@ -254,7 +254,7 @@ def process_log_line(line: str):
                 details[key] = value
     except Exception:
         print("Exception parsing details:", parts[8])
-        pass
+        return
     #print("uploading_objects:", uploading_objects)
     match source:
         case "dynostore.controllers.data":
