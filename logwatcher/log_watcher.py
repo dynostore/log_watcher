@@ -253,7 +253,7 @@ def process_log_line(line: str):
                 key, value = p.split('=')
                 details[key] = value
     except Exception:
-        print("Exception parsing details:", parts[8])
+        print("Exception parsing details:", parts)
         return
     #print("uploading_objects:", uploading_objects)
     match source:
