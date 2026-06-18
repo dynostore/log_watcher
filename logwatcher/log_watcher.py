@@ -1,8 +1,8 @@
 import heapq
 from datetime import datetime
-import builtins
-import logging
+import atexit
 import os
+import sys
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import requests
@@ -12,25 +12,45 @@ import ast
 
 load_dotenv()
 
-LOG_OUTPUT_FILE = os.getenv("LOG_WATCHER_LOG_FILE", "log_watcher.log")
-os.makedirs(os.path.dirname(os.path.abspath(LOG_OUTPUT_FILE)), exist_ok=True)
-
-logger = logging.getLogger("logwatcher")
-logger.setLevel(logging.INFO)
-logger.propagate = False
-
-if not logger.handlers:
-    file_handler = logging.FileHandler(LOG_OUTPUT_FILE, encoding="utf-8")
-    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
-    logger.addHandler(file_handler)
+LOG_OUTPUT_FILE = os.path.abspath(os.getenv("LOG_WATCHER_LOG_FILE", "log_watcher.log"))
+os.makedirs(os.path.dirname(LOG_OUTPUT_FILE), exist_ok=True)
 
 
-def print(*args, **kwargs):
-    builtins.print(*args, **kwargs)
-    sep = kwargs.get("sep", " ")
-    if sep is None:
-        sep = " "
-    logger.info(sep.join(str(arg) for arg in args))
+class TeeStream:
+    def __init__(self, stream, log_file):
+        self.stream = stream
+        self.log_file = log_file
+        self.encoding = getattr(stream, "encoding", "utf-8")
+        self.errors = getattr(stream, "errors", "replace")
+
+    def write(self, data):
+        self.stream.write(data)
+        self.log_file.write(data)
+
+    def flush(self):
+        self.stream.flush()
+        self.log_file.flush()
+
+    def isatty(self):
+        return self.stream.isatty()
+
+
+_original_stdout = sys.stdout
+_original_stderr = sys.stderr
+_log_output = open(LOG_OUTPUT_FILE, "a", encoding="utf-8", buffering=1)
+sys.stdout = TeeStream(_original_stdout, _log_output)
+sys.stderr = TeeStream(_original_stderr, _log_output)
+
+
+def close_log_output():
+    sys.stdout.flush()
+    sys.stderr.flush()
+    sys.stdout = _original_stdout
+    sys.stderr = _original_stderr
+    _log_output.close()
+
+
+atexit.register(close_log_output)
 
 
 API_BASE_URL = os.getenv("API_BASE_URL")
