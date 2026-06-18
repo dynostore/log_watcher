@@ -1,5 +1,7 @@
 import heapq
 from datetime import datetime
+import builtins
+import logging
 import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -9,6 +11,27 @@ from urllib.parse import urlparse
 import ast
 
 load_dotenv()
+
+LOG_OUTPUT_FILE = os.getenv("LOG_WATCHER_LOG_FILE", "log_watcher.log")
+os.makedirs(os.path.dirname(os.path.abspath(LOG_OUTPUT_FILE)), exist_ok=True)
+
+logger = logging.getLogger("logwatcher")
+logger.setLevel(logging.INFO)
+logger.propagate = False
+
+if not logger.handlers:
+    file_handler = logging.FileHandler(LOG_OUTPUT_FILE, encoding="utf-8")
+    file_handler.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(message)s"))
+    logger.addHandler(file_handler)
+
+
+def print(*args, **kwargs):
+    builtins.print(*args, **kwargs)
+    sep = kwargs.get("sep", " ")
+    if sep is None:
+        sep = " "
+    logger.info(sep.join(str(arg) for arg in args))
+
 
 API_BASE_URL = os.getenv("API_BASE_URL")
 
@@ -499,4 +522,3 @@ def main():
 
 if __name__ == "__main__":
     main()
- 
