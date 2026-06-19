@@ -279,7 +279,7 @@ def process_log_line(line: str):
     ## ToDo: handle malformed log lines more robustly this is just a turn around to avoid crashes during development
     print("Processing log line:", line)
     print("size of parts:", len(parts))
-    print((not "dynostore" in line) and len(parts) < 8)
+    print((not "dynostore" in line) and len(parts) < 8, (not "dynostore" in line), len(parts) < 8)
     if not "dynostore" in line and len(parts) < 8:
         print("Malformed log line:", line)
         return
