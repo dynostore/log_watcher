@@ -280,10 +280,15 @@ def process_log_line(line: str):
     print("Processing log line:", line)
     print("size of parts:", len(parts))
     print((not "dynostore" in line) and len(parts) < 8, (not "dynostore" in line), len(parts) < 8)
+    
     if len(parts) < 8:
         print("Malformed log line:", line)
         return
     
+    if not "dynostore" in line:
+        print("Log line is not from dynostore:", line)
+        return
+
     timestamp = datetime.fromisoformat(parts[0].strip())
     log_level = parts[1].strip()
     source = parts[2].strip()
