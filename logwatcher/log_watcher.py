@@ -281,16 +281,16 @@ def process_log_line(line: str):
     parts = line.split(',')
     
     ## ToDo: handle malformed log lines more robustly this is just a turn around to avoid crashes during development
-    print("Processing log line:", line)
-    print("size of parts:", len(parts))
-    print((not "dynostore" in line) and len(parts) < 8, (not "dynostore" in line), len(parts) < 8)
+    #print("Processing log line:", line)
+    #print("size of parts:", len(parts))
+    #print((not "dynostore" in line) and len(parts) < 8, (not "dynostore" in line), len(parts) < 8)
     
     if len(parts) < 8:
-        print("Malformed log line:", line)
+        #print("Malformed log line:", line)
         return
     
     if not "dynostore" in line:
-        print("Log line is not from dynostore:", line)
+        #print("Log line is not from dynostore:", line)
         return
 
     timestamp = datetime.fromisoformat(parts[0].strip())
