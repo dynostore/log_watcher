@@ -72,6 +72,9 @@ log_heap = []
 global client_counter
 client_counter = 0
 
+# Sequence number for stable heap sort
+global_seq = 0
+
 def parse_timestamp(line):
     if line[0].isdigit():
         try:
@@ -90,7 +93,8 @@ for f in LOG_FILES:
             for line in file:
                 ts = parse_timestamp(line)
                 if ts:
-                    heapq.heappush(log_heap, (ts, f, line.strip()))
+                    global_seq += 1
+                    heapq.heappush(log_heap, (ts, global_seq, f, line.strip()))
         # Move offset to the end
         file_offsets[f] = os.path.getsize(f)
 
@@ -522,7 +526,9 @@ class LogHandler(FileSystemEventHandler):
                 for line in new_lines:
                     ts = parse_timestamp(line)
                     if ts:
-                        heapq.heappush(log_heap, (ts, event.src_path, line.strip()))
+                        global global_seq
+                        global_seq += 1
+                        heapq.heappush(log_heap, (ts, global_seq, event.src_path, line.strip()))
 
 def main():
     observer = Observer()
@@ -538,7 +544,8 @@ def main():
         while True:
             # Process logs in chronological order
             while log_heap:
-                ts, source, line = heapq.heappop(log_heap)
+                popped = heapq.heappop(log_heap)
+                line = popped[-1]
                 #print(line)  # For demonstration, print the log line
                 process_log_line(line)
             #time.sleep(1)
