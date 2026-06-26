@@ -3,6 +3,7 @@ from datetime import datetime
 import atexit
 import os
 import sys
+import time
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import requests
@@ -549,7 +550,7 @@ def main():
                 line = popped[-1]
                 #print(line)  # For demonstration, print the log line
                 process_log_line(line)
-            #time.sleep(1)
+            time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
