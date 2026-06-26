@@ -372,7 +372,7 @@ def process_log_line(line: str):
                     chunk_id = details.get("frag")# + "_1"
                     url = details.get("url", "")
                     parsed = urlparse(url)
-                    uri = parsed.hostname
+                    uri = parsed.netloc
                     data_container_id = get_dc_id_from_uri(uri)
                     uploading_objects[object_id]["chunks"][chunk_id] = {
                         "size": details.get("bytes", 0),
