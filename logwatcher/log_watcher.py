@@ -266,6 +266,7 @@ def connect_client_to_chunk(client_id: str, chunk_id: str, timestamp: int, opera
 def get_dc_id_from_uri(uri: str) -> str:
     #get data container from uri suing get request on apis
     r = requests.get(f"{API_BASE_URL}/vertices/datacontainers?uri={uri}")
+    #print(f"Requesting DataContainer ID from URI {uri}: {r.status_code}")
     if r.status_code == 200:
         data = r.json()
         return data["_key"]
