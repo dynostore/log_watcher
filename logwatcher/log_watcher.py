@@ -353,6 +353,8 @@ def process_log_line(line: str):
                     print("Erasure coding split action detected.")
                     client_counter += 1
                     create_client(client_id=str(client_counter))
+                    if object_id not in uploading_objects:
+                        uploading_objects[object_id] = {"size": 0}
                     uploading_objects[object_id]["reconstruction_threshold"] = details.get("k", 0)
                     create_data_object(
                         object_id,
@@ -366,9 +368,14 @@ def process_log_line(line: str):
                         object_id=object_id
                     )
                     uploading_objects[object_id]["n"] = details.get("n", 0)
+                    if "chunks" in uploading_objects[object_id] and len(uploading_objects[object_id]["chunks"]) == uploading_objects[object_id]["n"]:
+                        print(f"All chunks for object {object_id} have been processed.")
+                        uploading_objects.pop(object_id)
                     pass
                 case "EC_PUSH":
                     print("Erasure coding push action detected.")
+                    if object_id not in uploading_objects:
+                        uploading_objects[object_id] = {"size": 0}
                     if "chunks" not in uploading_objects[object_id]:
                         uploading_objects[object_id]["chunks"] = {}
                     chunk_id = details.get("frag")# + "_1"
@@ -407,7 +414,8 @@ def process_log_line(line: str):
                     )
                     print(f"Created and connected chunk {chunk_id} for object {object_id} to datacontainer {data_container_id}")
                     #TODO: update read/write operation edges between client and  object chunks
-                    if len(uploading_objects[object_id]["chunks"]) == uploading_objects[object_id]["n"]:
+                    #print(line)
+                    if len(uploading_objects[object_id]["chunks"]) == uploading_objects[object_id].get("n", -1):
                         print(f"All chunks for object {object_id} have been processed.")
                         uploading_objects.pop(object_id)
                     pass
