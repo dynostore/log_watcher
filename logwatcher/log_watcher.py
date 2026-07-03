@@ -556,7 +556,7 @@ def main():
             while log_heap:
                 popped = heapq.heappop(log_heap)
                 line = popped[-1]
-                #print(line)  # For demonstration, print the log line
+                print(line)  # For demonstration, print the log line
                 process_log_line(line)
             time.sleep(1)
     except KeyboardInterrupt:
