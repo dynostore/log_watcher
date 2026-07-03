@@ -288,7 +288,7 @@ def process_log_line(line: str):
     #print((not "dynostore" in line) and len(parts) < 8, (not "dynostore" in line), len(parts) < 8)
     
     if len(parts) < 8:
-        #print("Malformed log line:", line)
+        print("Malformed log line:", line)
         return
     
     if not "dynostore" in line:
@@ -556,7 +556,7 @@ def main():
             while log_heap:
                 popped = heapq.heappop(log_heap)
                 line = popped[-1]
-                print(line)  # For demonstration, print the log line
+                #print(line)  # For demonstration, print the log line
                 process_log_line(line)
             time.sleep(1)
     except KeyboardInterrupt:
