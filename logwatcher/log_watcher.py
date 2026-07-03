@@ -477,7 +477,7 @@ def process_log_line(line: str):
                 case _:
                     print("Unknown action for data controller:", action)
             pass
-        case "storage":
+        case "dynostore.storage":
             match action:
                 case "WRITE":
                     print("Write operation detected.")
@@ -496,7 +496,7 @@ def process_log_line(line: str):
                     print("Unknown action for storage:", action)
             print("Storage log detected.")
             pass
-        case "caching":
+        case "dynostore.caching":
             match action:
                 case "GET":
                     print("Cache read action detected.")
